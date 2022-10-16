@@ -60,23 +60,30 @@ resource "aws_security_group" "allow_ports" {
   }
 }
 
-# Request a spot instance
-resource "aws_spot_instance_request" "worker" {
+## Request a spot instance
+#resource "aws_spot_instance_request" "worker" {
+#  ami                    = "ami-0caef02b518350c8b"
+#  spot_price             = data.aws_ec2_spot_price.current.spot_price + data.aws_ec2_spot_price.current.spot_price * 0.05
+#  instance_type          = "t3.micro"
+#  spot_type              = "one-time"
+#  vpc_security_group_ids = [aws_security_group.allow_ports.id]
+#  key_name               = "roma-pidr"
+#  user_data              = file("user_data.sh")
+#}
+
+# Configure EC2 instance
+resource "aws_instance" "web" {
   ami                    = "ami-0caef02b518350c8b"
-  spot_price             = data.aws_ec2_spot_price.current.spot_price + data.aws_ec2_spot_price.current.spot_price * 0.05
   instance_type          = "t3.micro"
-  spot_type              = "one-time"
   vpc_security_group_ids = [aws_security_group.allow_ports.id]
   key_name               = "roma-pidr"
   user_data              = file("user_data.sh")
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
-# Configure EC2 instance
-#resource "aws_instance" "web" {
-#  ami             = "ami-0caef02b518350c8b"
-#  instance_type   = "t3.micro"
-#  vpc_security_group_ids = [aws_security_group.allow_ports.id]
-#  key_name = "roma-pidr"
-#
-#  user_data       = file("user_data.sh")
-#}
+resource "aws_eip_association" "eip_assoc" {
+  instance_id   = aws_instance.web.id
+  allocation_id = "eipalloc-0bcb539139ac4dc48"
+}
