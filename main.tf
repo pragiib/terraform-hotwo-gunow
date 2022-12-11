@@ -76,7 +76,7 @@ resource "aws_instance" "web" {
   ami                    = "ami-0caef02b518350c8b"
   instance_type          = "t3.micro"
   vpc_security_group_ids = [aws_security_group.allow_ports.id]
-  key_name               = "roma-pidr"
+  key_name               = "test-kp"
   user_data              = file("user_data.sh")
   lifecycle {
     create_before_destroy = true
